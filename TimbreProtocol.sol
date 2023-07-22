@@ -5,6 +5,7 @@ pragma solidity ^0.8.18;
 contract TimbreProtocol {
     event AddedReviewableAddress(address newReviewableAddress);
     event AddedReview(
+        address reviewer,
         address existingReviewableAddress,
         string _reviewDecentralizedStorageURL,
         uint256 currentBlockTime,
@@ -23,6 +24,12 @@ contract TimbreProtocol {
         public reviewableAddressToReviewerToReviewObject;
     mapping(address reviewableAddress => mapping(address reviewer => mapping(address viewer => bool hasAccess)))
         public reviewableAddressToReviewerToViewerToAccess;
+
+    address public immutable i_owner;
+
+    constructor() {
+        i_owner = msg.sender;
+    }
 
     function addReviewableAddress(address newReviewableAddress) public {
         require(
@@ -55,6 +62,7 @@ contract TimbreProtocol {
         ] = newReviewObject;
 
         emit AddedReview(
+            msg.sender,
             existingReviewableAddress,
             _reviewDecentralizedStorageURL,
             block.timestamp,
@@ -66,7 +74,6 @@ contract TimbreProtocol {
         address existingReviewableAddress,
         address reviewerAddress
     ) public view returns (bool) {
-        //  give access if fee is default of 0
         if (
             reviewableAddressToReviewerToReviewObject[
                 existingReviewableAddress
@@ -79,5 +86,31 @@ contract TimbreProtocol {
             reviewableAddressToReviewerToViewerToAccess[
                 existingReviewableAddress
             ][reviewerAddress][msg.sender];
+    }
+
+    function payForViewerAccess(
+        address existingReviewableAddress,
+        address reviewer
+    ) public payable {
+        uint256 price = reviewableAddressToReviewerToReviewObject[
+            existingReviewableAddress
+        ][reviewer].priceToAccessReview;
+        require(msg.value >= price, "Not enough funds to access this review!");
+
+        reviewableAddressToReviewerToViewerToAccess[existingReviewableAddress][
+            reviewer
+        ][msg.sender] = true;
+    }
+
+    modifier onlyOwner() {
+        require(
+            msg.sender == i_owner,
+            "Only the owner can call this function!"
+        );
+        _;
+    }
+
+    function withdraw() public onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
     }
 }
