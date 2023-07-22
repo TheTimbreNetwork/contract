@@ -3,6 +3,14 @@
 pragma solidity ^0.8.18;
 
 contract TimbreProtocol {
+    event AddedReviewableAddress(address newReviewableAddress);
+    event AddedReview(
+        address existingReviewableAddress,
+        string _reviewDecentralizedStorageURL,
+        uint256 currentBlockTime,
+        uint256 _priceToAccessReview
+    );
+
     struct ReviewObject {
         string reviewDecentralizedStorageURL;
         uint256 timestamp;
@@ -22,6 +30,7 @@ contract TimbreProtocol {
             "This reviewable address exists!"
         );
         reviewableAddressExists[newReviewableAddress] = true;
+        emit AddedReviewableAddress(newReviewableAddress);
     }
 
     function addReview(
@@ -44,6 +53,13 @@ contract TimbreProtocol {
         reviewableAddressToReviewerToReviewObject[existingReviewableAddress][
             msg.sender
         ] = newReviewObject;
+
+        emit AddedReview(
+            existingReviewableAddress,
+            _reviewDecentralizedStorageURL,
+            block.timestamp,
+            _priceToAccessReview
+        );
     }
 
     function getViewerAccess(
