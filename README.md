@@ -8,7 +8,7 @@ This repository contains the Solidity code for the smart contract which is deplo
 
 ## Usage
 
-Our product is currently in Beta and if you'd like access or have any questions or suggestions please me on Twitter (https://twitter.com/arshaan_b).
+Our product is currently in Beta and if you'd like access or have any questions or suggestions please contact me on Twitter (https://twitter.com/arshaan_b).
 
 ## Support
 
